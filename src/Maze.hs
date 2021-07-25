@@ -1,6 +1,7 @@
 module Maze where
 
 import Control.Monad.IO.Class
+import Control.Monad.Loops
 import Data.List.Index
 import System.Random
 
@@ -54,7 +55,7 @@ initialBoard :: Int -> Board
 initialBoard size = undefined
 
 extendWall :: Board -> Board
-extendWall board = until finished (
+extendWall board = iterateUntilM
   where
     chooseStartPoint b = choose (getUnfinishedPos b)
     finished (pos, pillarStack) = all (`elem` pillarStack) nextPillar pos
