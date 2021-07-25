@@ -60,8 +60,10 @@ extendWall board = until finished (
     finished (pos, pillarStack) = all (`elem` pillarStack) nextPillar pos
     makePillarStack = do startPos <- chooseStartPoint board 
                          until finished (\(pos, stack) -> ) (startPos, [])
-    choosePillar (pos, pillarStack) =do nextPos <- choose $ filter (\pos -> not (pos `elem` pillarStack)) $ nextPillar pos
-                                        return (nextPos, pos : pillarStack)
+    choosePillar (pos, pillarStack) = choose $ filter (\pos -> not (pos `elem` pillarStack)) $ nextPillar pos
+    step (Pos x y, pillarStack) (Pos nextx nexty)
+      | x == nextx && y /= nexty = (Pos x nexty) : (Pos x ((nexty - y) `div` 2)) : pillarStack
+      | x /= nextx && y == nexty = (Pos nextx y) : (Pos ((nextx - x) `div` 2) y) : pillarStack
 
 getUnfinishedPos :: Board -> [Pos]
 getUnfinishedPos (Board board) = iconcatMap (\yIndex row -> [Pos xIndex yIndex | not (isEdge yIndex board), even yIndex, xIndex <- getUnfinishedPosRow row]) board
