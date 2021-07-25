@@ -30,13 +30,13 @@ update :: Board -> Pos -> Grid -> Board
 update (Board board) (Pos xIndex yIndex) grid = Board ( left yIndex board
                                                         ++ ( left xIndex row
                                                              ++ grid
-                                                             ++ right xIndex row
+                                                             : right xIndex row
                                                            )
-                                                        ++ right yIndex board
+                                                        : right yIndex board
                                                       )
   where
-    left index = take (index + 1)
-    right index = drop (index + 2)
+    left index = take index
+    right index = drop (index + 1)
     row = board !! yIndex
 
 expandRoad :: Int -> [a] -> [a]
@@ -67,18 +67,27 @@ makeMaze size = if odd size then Board [[W, F, W]] --until finished extendWall (
 initialBoard :: Int -> Board
 initialBoard size = undefined
 
-extendWall :: Board -> Board
-extendWall board = do startPoint <- chooseStartPos board
-                      iterateUntilM finished step startPoint
+extendWall :: MonadIO m => Board -> m Board
+extendWall board = do startPos <- chooseStartPos board
+                      liftIO $ putStr $ "startPos" ++ show startPos
+                      (lastPos, pillarStack) <- iterateUntilM finished step (startPos, [])
+                      liftIO $ putStr $ "lastPos, pillarStack" ++ show (lastPos, pillarStack)
+                      return (foldl (\prevBoard pos -> update prevBoard pos W) board pillarStack)
   where
+    chooseStartPos :: MonadIO m => Board -> m Pos
     chooseStartPos b = choose (getUnfinishedPos b)
-    finished (pos, pillarStack) = all (`elem` pillarStack) nextPillar pos
+    finished :: (Pos, [Pos]) -> Bool
+    finished (pos, pillarStack) = all (`elem` pillarStack) (nextPillar pos)
+    choosePillar :: MonadIO m => (Pos, [Pos]) -> m Pos
     choosePillar (pos, pillarStack) = choose $ filter (`notElem` pillarStack) $ nextPillar pos
+    stack :: (Pos, [Pos]) -> Pos -> [Pos]
     stack (Pos x y, pillarStack) (Pos nextx nexty)
-      | x == nextx && y /= nexty = Pos x nexty : Pos x ((nexty - y) `div` 2) : pillarStack
-      | x /= nextx && y == nexty = Pos nextx y : Pos ((nextx - x) `div` 2) y : pillarStack
+      | x == nextx && y /= nexty = Pos x nexty : (Pos x (y + ((nexty - y) `div` 2)) : pillarStack)
+      | x /= nextx && y == nexty = Pos nextx y : (Pos (x + ((nextx - x) `div` 2)) y : pillarStack)
+    step :: MonadIO m => (Pos, [Pos]) -> m (Pos, [Pos])
     step (pos, pillarStack) = do nextPos <- choosePillar (pos, pillarStack)
-                                 stack (pos, pillarStack) nextPos
+                                 let nextPillarStack = stack (pos, pillarStack) nextPos
+                                 return (nextPos, nextPillarStack)
 
 getUnfinishedPos :: Board -> [Pos]
 getUnfinishedPos (Board board) = iconcatMap (\yIndex row -> [Pos xIndex yIndex | not (isEdge yIndex board), even yIndex, xIndex <- getUnfinishedPosRow row]) board
