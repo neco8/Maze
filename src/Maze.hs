@@ -26,6 +26,19 @@ instance Show Board where
 (!!!) :: Board -> Pos -> Grid
 (Board board) !!! (Pos xIndex yIndex) = (board !! yIndex) !! xIndex
 
+update :: Board -> Pos -> Grid -> Board
+update (Board board) (Pos xIndex yIndex) grid = Board ( left yIndex board
+                                                        ++ ( left xIndex row
+                                                             ++ grid
+                                                             ++ right xIndex row
+                                                           )
+                                                        ++ right yIndex board
+                                                      )
+  where
+    left index = take (index + 1)
+    right index = drop (index + 2)
+    row = board !! yIndex
+
 expandRoad :: Int -> [a] -> [a]
 expandRoad roadWidth =
   concat . imap (\index a -> if odd index
@@ -47,7 +60,7 @@ printBoard board = do clearScreen
 
 makeMaze :: Int -> Board
 makeMaze size = if odd size then Board [[W, F, W]] --until finished extendWall (initialBoard size)
-                else error "size must be odd." 
+                else error "size must be odd."
   where
     finished (Board board) = undefined
 
@@ -55,16 +68,17 @@ initialBoard :: Int -> Board
 initialBoard size = undefined
 
 extendWall :: Board -> Board
-extendWall board = iterateUntilM
+extendWall board = do startPoint <- chooseStartPos board
+                      iterateUntilM finished step startPoint
   where
-    chooseStartPoint b = choose (getUnfinishedPos b)
+    chooseStartPos b = choose (getUnfinishedPos b)
     finished (pos, pillarStack) = all (`elem` pillarStack) nextPillar pos
-    makePillarStack = do startPos <- chooseStartPoint board 
-                         until finished (\(pos, stack) -> ) (startPos, [])
-    choosePillar (pos, pillarStack) = choose $ filter (\pos -> not (pos `elem` pillarStack)) $ nextPillar pos
-    step (Pos x y, pillarStack) (Pos nextx nexty)
-      | x == nextx && y /= nexty = (Pos x nexty) : (Pos x ((nexty - y) `div` 2)) : pillarStack
-      | x /= nextx && y == nexty = (Pos nextx y) : (Pos ((nextx - x) `div` 2) y) : pillarStack
+    choosePillar (pos, pillarStack) = choose $ filter (`notElem` pillarStack) $ nextPillar pos
+    stack (Pos x y, pillarStack) (Pos nextx nexty)
+      | x == nextx && y /= nexty = Pos x nexty : Pos x ((nexty - y) `div` 2) : pillarStack
+      | x /= nextx && y == nexty = Pos nextx y : Pos ((nextx - x) `div` 2) y : pillarStack
+    step (pos, pillarStack) = do nextPos <- choosePillar (pos, pillarStack)
+                                 stack (pos, pillarStack) nextPos
 
 getUnfinishedPos :: Board -> [Pos]
 getUnfinishedPos (Board board) = iconcatMap (\yIndex row -> [Pos xIndex yIndex | not (isEdge yIndex board), even yIndex, xIndex <- getUnfinishedPosRow row]) board
