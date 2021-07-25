@@ -70,7 +70,11 @@ getUnfinishedPos (Board board) = iconcatMap (\yIndex row -> [Pos xIndex yIndex |
     isEdge index as = index == 0 || index == length as - 1
 
 nextPillar :: Pos -> [Pos]
-nextPillar (Pos xIndex yIndex) = [Pos x y | x <- [xIndex - 2, xIndex + 2], y <- [yIndex - 2, yIndex + 2]]
+nextPillar (Pos xIndex yIndex) = [ Pos (xIndex + 2) yIndex
+                                 , Pos (xIndex - 2) yIndex
+                                 , Pos xIndex (yIndex + 2)
+                                 , Pos xIndex (yIndex - 2)
+                                 ]
 
 choose :: MonadIO m => [a] -> m a
 choose as = do index <- randomRIO (0, end)
