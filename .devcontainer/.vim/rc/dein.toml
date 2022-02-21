@@ -1,0 +1,85 @@
+[[plugins]]
+repo = 'Shougo/dein.vim'
+
+[[plugins]]
+repo = 'vim-scripts/vim-auto-save'
+
+[[plugins]]
+repo = 'posva/vim-vue'
+
+[[plugins]]
+repo = 'tpope/vim-surround'
+
+[[plugins]]
+repo = 'shinshin86/twc.vim'
+
+[[plugins]]
+repo = 'altercation/vim-colors-solarized'
+
+[[plugins]]
+repo = 'nanotech/jellybeans.vim'
+
+[[plugins]]
+repo = 'stillwwater/vim-nebula'
+
+[[plugins]]
+repo = 'Mcmartelle/vim-monokai-bold'
+
+[[plugins]]
+repo = 'habamax/vim-colors-lessthan'
+
+[[plugins]]
+repo = 'arzg/vim-corvine'
+
+[[plugins]]
+repo = 'flrnd/candid.vim'
+
+[[plugins]]
+repo = 'franbach/miramare'
+
+[[plugins]]
+repo = 'pgavlin/pulumi.vim'
+
+[[plugins]]
+repo = 'cocopon/iceberg.vim'
+
+[[plugins]]
+repo = 'preservim/vim-colors-pencil'
+
+[[plugins]]
+repo = 'hardselius/warlock'
+
+[[plugins]]
+repo = 'ayu-theme/ayu-vim'
+
+[[plugins]]
+repo = 'relastle/bluewery.vim'
+
+[[plugins]]
+repo = 'sonph/onehalf'
+
+[[plugins]]
+repo = 'morhetz/gruvbox'
+
+[[plugins]]
+repo = 'vim-airline/vim-airline'
+
+[[plugins]]
+repo = 'thinca/vim-partedit'
+
+[[plugins]]
+repo = 'itchyny/lightline.vim'
+hook_add = '''
+    let g:lightline = { 'colorscheme': 'jellybeans' }
+    set laststatus=2
+    set noshowmode
+'''
+
+[[plugins]]
+repo = 'nathanaelkane/vim-indent-guides'
+
+[[plugins]]
+repo = 'mattn/emmet-vim'
+
+[[plugins]]
+repo = 'easymotion/vim-easymotion'
